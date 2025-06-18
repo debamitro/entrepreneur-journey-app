@@ -6,13 +6,32 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		157D0FDC2E0342F500203B2F /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 157D0FDB2E0342F500203B2F /* Config.xcconfig */; };
+		15EDC90C2E01AEBA00F2382F /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = 15EDC90B2E01AEBA00F2382F /* Clerk */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		157D0FDB2E0342F500203B2F /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		15ADB5E62DFA71BC005DE344 /* ejourney.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ejourney.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		157D0FDE2E03488300203B2F /* Exceptions for "ejourney" folder in "ejourney" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 15ADB5E52DFA71BC005DE344 /* ejourney */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		15ADB5E82DFA71BC005DE344 /* ejourney */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				157D0FDE2E03488300203B2F /* Exceptions for "ejourney" folder in "ejourney" target */,
+			);
 			path = ejourney;
 			sourceTree = "<group>";
 		};
@@ -23,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				15EDC90C2E01AEBA00F2382F /* Clerk in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,6 +52,7 @@
 		15ADB5DD2DFA71BC005DE344 = {
 			isa = PBXGroup;
 			children = (
+				157D0FDB2E0342F500203B2F /* Config.xcconfig */,
 				15ADB5E82DFA71BC005DE344 /* ejourney */,
 				15ADB5E72DFA71BC005DE344 /* Products */,
 			);
@@ -65,6 +86,7 @@
 			);
 			name = ejourney;
 			packageProductDependencies = (
+				15EDC90B2E01AEBA00F2382F /* Clerk */,
 			);
 			productName = ejourney;
 			productReference = 15ADB5E62DFA71BC005DE344 /* ejourney.app */;
@@ -94,6 +116,9 @@
 			);
 			mainGroup = 15ADB5DD2DFA71BC005DE344;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				15EDC90A2E01AEBA00F2382F /* XCRemoteSwiftPackageReference "clerk-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 15ADB5E72DFA71BC005DE344 /* Products */;
 			projectDirPath = "";
@@ -109,6 +134,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				157D0FDC2E0342F500203B2F /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -127,6 +153,7 @@
 /* Begin XCBuildConfiguration section */
 		15ADB5F12DFA71BD005DE344 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 157D0FDB2E0342F500203B2F /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -191,6 +218,7 @@
 		};
 		15ADB5F22DFA71BD005DE344 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 157D0FDB2E0342F500203B2F /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -256,6 +284,8 @@
 				DEVELOPMENT_TEAM = 28HBVPR6JK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ejourney/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +314,8 @@
 				DEVELOPMENT_TEAM = 28HBVPR6JK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ejourney/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -324,6 +356,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		15EDC90A2E01AEBA00F2382F /* XCRemoteSwiftPackageReference "clerk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/clerk/clerk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.58.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		15EDC90B2E01AEBA00F2382F /* Clerk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 15EDC90A2E01AEBA00F2382F /* XCRemoteSwiftPackageReference "clerk-ios" */;
+			productName = Clerk;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 15ADB5DE2DFA71BC005DE344 /* Project object */;
 }
