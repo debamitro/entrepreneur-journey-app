@@ -1,6 +1,36 @@
 import SwiftUI
 import Clerk
 
+struct GoogleSignInButton: View {
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: "g.circle.fill")
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(.blue)
+                
+                Text("Sign in with Google")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.black)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity)
+            .frame(height: 44)
+            .background(Color.white)
+            .cornerRadius(6)
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+            )
+        }
+    }
+}
+
 struct SignInView: View {
     @State private var email = ""
     @State private var password = ""
@@ -11,22 +41,7 @@ struct SignInView: View {
                 .font(.largeTitle)
                 .bold()
             
-            TextField("Email", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal)
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
-            
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal)
-            
-            Button("Continue") {
-                Task { await submit(email: email, password: password) }
-            }
-            .buttonStyle(.borderedProminent)
-            
-            Button("Sign in with Google") {
+            GoogleSignInButton {
                 Task {
                     do {
                         print("signing in with Google...")
@@ -44,22 +59,8 @@ struct SignInView: View {
                     }
                 }
             }
+            .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 2)
         }
         .padding()
-    }
-    
-    private func signInWithGoogle() {
-    }
-}
-
-extension SignInView {
-    func submit(email: String, password: String) async {
-        do {
-            try await SignIn.create(
-                strategy: .identifier(email, password: password)
-            )
-        } catch {
-            dump(error)
-        }
     }
 }
