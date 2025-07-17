@@ -62,3 +62,5 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 ejourney/Config.xcconfig
+backend/node_modules
+
