@@ -1,7 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid');
+import express = require('express');
+import cors = require('cors');
+import bodyParser = require('body-parser');
+import { v4 as uuidv4 } from 'uuid';
+
+type Request = express.Request;
+type Response = express.Response;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,19 +13,29 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+// Define the BusinessIdea interface
+interface BusinessIdea {
+  id: string;
+  description: string;
+  targetMarket: string;
+  effort: string;
+  reward: string;
+  date: string;
+}
+
 // In-memory database for development
 // In a production environment, you'd use a real database
-const ideas = [];
+const ideas: BusinessIdea[] = [];
 
 // Routes
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('Entrepreneur Journey API is running');
 });
 
 // MARK: - Business Ideas API
 
 // Get all ideas
-app.get('/v1/ideas', (req, res) => {
+app.get('/v1/ideas', (req: Request, res: Response) => {
   console.log('Fetching all ideas, count:', ideas.length);
   
   // Ensure all ideas have the correct format
@@ -39,7 +52,7 @@ app.get('/v1/ideas', (req, res) => {
 });
 
 // Get a specific idea
-app.get('/v1/ideas/:id', (req, res) => {
+app.get('/v1/ideas/:id', (req: Request, res: Response) => {
   console.log(`Fetching idea with ID: ${req.params.id}`);
   const idea = ideas.find(i => i.id === req.params.id);
   if (!idea) {
@@ -60,7 +73,7 @@ app.get('/v1/ideas/:id', (req, res) => {
 });
 
 // Create a new idea
-app.post('/v1/ideas', (req, res) => {
+app.post('/v1/ideas', (req: Request, res: Response) => {
   const idea = req.body;
   console.log('Received idea:', JSON.stringify(idea));
   
@@ -80,7 +93,7 @@ app.post('/v1/ideas', (req, res) => {
 });
 
 // Update an idea
-app.put('/v1/ideas/:id', (req, res) => {
+app.put('/v1/ideas/:id', (req: Request, res: Response) => {
   console.log(`Updating idea with ID: ${req.params.id}`);
   console.log('Update data:', JSON.stringify(req.body));
   
@@ -89,14 +102,16 @@ app.put('/v1/ideas/:id', (req, res) => {
     return res.status(404).json({ error: 'Business idea not found' });
   }
   
+  const existingIdea = ideas[index]!; // Non-null assertion since we checked index !== -1
+  
   // Update the idea with new values, keeping the same ID
-  const updatedIdea = {
-    id: req.params.id,
-    description: req.body.description || ideas[index].description || '',
-    targetMarket: req.body.targetMarket || ideas[index].targetMarket || '',
-    effort: req.body.effort || ideas[index].effort || '',
-    reward: req.body.reward || ideas[index].reward || '',
-    date: req.body.date || ideas[index].date || new Date().toISOString()
+  const updatedIdea: BusinessIdea = {
+    id: req.params.id as string,
+    description: req.body.description || existingIdea.description || '',
+    targetMarket: req.body.targetMarket || existingIdea.targetMarket || '',
+    effort: req.body.effort || existingIdea.effort || '',
+    reward: req.body.reward || existingIdea.reward || '',
+    date: req.body.date || existingIdea.date || new Date().toISOString()
   };
   
   console.log('Formatted updated idea:', JSON.stringify(updatedIdea));
@@ -105,7 +120,7 @@ app.put('/v1/ideas/:id', (req, res) => {
 });
 
 // Delete an idea
-app.delete('/v1/ideas/:id', (req, res) => {
+app.delete('/v1/ideas/:id', (req: Request, res: Response) => {
   const index = ideas.findIndex(i => i.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ error: 'Business idea not found' });
