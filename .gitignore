@@ -63,4 +63,6 @@ fastlane/test_output
 
 ejourney/Config.xcconfig
 backend/node_modules
+backend/dist
+backend/prisma/dev.db
 
