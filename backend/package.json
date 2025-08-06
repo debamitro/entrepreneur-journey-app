@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "tsc -w & nodemon ./dist/server.js",
-    "build": "tsc",
+    "dev": "prisma generate && tsc -w & nodemon ./dist/server.js",
+    "build": "prisma generate && tsc",
     "start": "node ./dist/server.js",
     "clean": "rm -fr ./dist"
   },
@@ -13,9 +13,11 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@prisma/client": "^6.13.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "prisma": "^6.13.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

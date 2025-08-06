@@ -1,10 +1,13 @@
 import express = require('express');
 import cors = require('cors');
 import bodyParser = require('body-parser');
-import { v4 as uuidv4 } from 'uuid';
+import { PrismaClient } from '@prisma/client';
 
 type Request = express.Request;
 type Response = express.Response;
+
+// Initialize Prisma Client
+const prisma = new PrismaClient();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Define the BusinessIdea interface
+// Define the BusinessIdea interface (matching Prisma model)
 interface BusinessIdea {
   id: string;
   description: string;
@@ -21,11 +24,9 @@ interface BusinessIdea {
   effort: string;
   reward: string;
   date: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
-
-// In-memory database for development
-// In a production environment, you'd use a real database
-const ideas: BusinessIdea[] = [];
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
@@ -35,99 +36,119 @@ app.get('/', (req: Request, res: Response) => {
 // MARK: - Business Ideas API
 
 // Get all ideas
-app.get('/v1/ideas', (req: Request, res: Response) => {
-  console.log('Fetching all ideas, count:', ideas.length);
-  
-  // Ensure all ideas have the correct format
-  const formattedIdeas = ideas.map(idea => ({
-    id: idea.id || uuidv4(),
-    description: idea.description || '',
-    targetMarket: idea.targetMarket || '',
-    effort: idea.effort || '',
-    reward: idea.reward || '',
-    date: idea.date || new Date().toISOString()
-  }));
-  
-  res.json(formattedIdeas);
+app.get('/v1/ideas', async (req: Request, res: Response) => {
+  try {
+    const ideas = await prisma.businessIdea.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    
+    console.log('Fetching all ideas, count:', ideas.length);
+    res.json(ideas);
+  } catch (error) {
+    console.error('Error fetching ideas:', error);
+    res.status(500).json({ error: 'Failed to fetch business ideas' });
+  }
 });
 
 // Get a specific idea
-app.get('/v1/ideas/:id', (req: Request, res: Response) => {
-  console.log(`Fetching idea with ID: ${req.params.id}`);
-  const idea = ideas.find(i => i.id === req.params.id);
-  if (!idea) {
-    return res.status(404).json({ error: 'Business idea not found' });
+app.get('/v1/ideas/:id', async (req: Request, res: Response) => {
+  try {
+    console.log(`Fetching idea with ID: ${req.params.id}`);
+    const idea = await prisma.businessIdea.findUnique({
+      where: {
+        id: req.params.id as string
+      }
+    });
+    
+    if (!idea) {
+      return res.status(404).json({ error: 'Business idea not found' });
+    }
+    
+    res.json(idea);
+  } catch (error) {
+    console.error('Error fetching idea:', error);
+    res.status(500).json({ error: 'Failed to fetch business idea' });
   }
-  
-  // Ensure consistent format
-  const formattedIdea = {
-    id: idea.id,
-    description: idea.description || '',
-    targetMarket: idea.targetMarket || '',
-    effort: idea.effort || '',
-    reward: idea.reward || '',
-    date: idea.date || new Date().toISOString()
-  };
-  
-  res.json(formattedIdea);
 });
 
 // Create a new idea
-app.post('/v1/ideas', (req: Request, res: Response) => {
-  const idea = req.body;
-  console.log('Received idea:', JSON.stringify(idea));
-  
-  // Format the data to match the Swift model
-  const formattedIdea = {
-    id: idea.id || uuidv4(),
-    description: idea.description || '',
-    targetMarket: idea.targetMarket || '',
-    effort: idea.effort || '',
-    reward: idea.reward || '',
-    date: idea.date || new Date().toISOString()
-  };
-  
-  console.log('Formatted idea:', JSON.stringify(formattedIdea));
-  ideas.push(formattedIdea);
-  res.status(201).json(formattedIdea);
+app.post('/v1/ideas', async (req: Request, res: Response) => {
+  try {
+    const { description, targetMarket, effort, reward, date } = req.body;
+    console.log('Received idea:', JSON.stringify(req.body));
+    
+    const newIdea = await prisma.businessIdea.create({
+      data: {
+        description: description || '',
+        targetMarket: targetMarket || '',
+        effort: effort || '',
+        reward: reward || '',
+        date: date || new Date().toISOString()
+      }
+    });
+    
+    console.log('Created idea:', JSON.stringify(newIdea));
+    res.status(201).json(newIdea);
+  } catch (error) {
+    console.error('Error creating idea:', error);
+    res.status(500).json({ error: 'Failed to create business idea' });
+  }
 });
 
 // Update an idea
-app.put('/v1/ideas/:id', (req: Request, res: Response) => {
-  console.log(`Updating idea with ID: ${req.params.id}`);
-  console.log('Update data:', JSON.stringify(req.body));
-  
-  const index = ideas.findIndex(i => i.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ error: 'Business idea not found' });
+app.put('/v1/ideas/:id', async (req: Request, res: Response) => {
+  try {
+    console.log(`Updating idea with ID: ${req.params.id}`);
+    console.log('Update data:', JSON.stringify(req.body));
+    
+    const { description, targetMarket, effort, reward, date } = req.body;
+    
+    const updatedIdea = await prisma.businessIdea.update({
+      where: {
+        id: req.params.id as string
+      },
+      data: {
+        description: description,
+        targetMarket: targetMarket,
+        effort: effort,
+        reward: reward,
+        date: date
+      }
+    });
+    
+    console.log('Updated idea:', JSON.stringify(updatedIdea));
+    res.json(updatedIdea);
+  } catch (error: any) {
+    console.error('Error updating idea:', error);
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Business idea not found' });
+    }
+    res.status(500).json({ error: 'Failed to update business idea' });
   }
-  
-  const existingIdea = ideas[index]!; // Non-null assertion since we checked index !== -1
-  
-  // Update the idea with new values, keeping the same ID
-  const updatedIdea: BusinessIdea = {
-    id: req.params.id as string,
-    description: req.body.description || existingIdea.description || '',
-    targetMarket: req.body.targetMarket || existingIdea.targetMarket || '',
-    effort: req.body.effort || existingIdea.effort || '',
-    reward: req.body.reward || existingIdea.reward || '',
-    date: req.body.date || existingIdea.date || new Date().toISOString()
-  };
-  
-  console.log('Formatted updated idea:', JSON.stringify(updatedIdea));
-  ideas[index] = updatedIdea;
-  res.json(updatedIdea);
 });
 
 // Delete an idea
-app.delete('/v1/ideas/:id', (req: Request, res: Response) => {
-  const index = ideas.findIndex(i => i.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ error: 'Business idea not found' });
+app.delete('/v1/ideas/:id', async (req: Request, res: Response) => {
+  try {
+    console.log(`Deleting idea with ID: ${req.params.id}`);
+    
+    await prisma.businessIdea.delete({
+      where: {
+        id: req.params.id as string
+      }
+    });
+    
+    console.log('Idea deleted successfully');
+    res.json({ message: 'Business idea deleted successfully' });
+  } catch (error: any) {
+    console.error('Error deleting idea:', error);
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Business idea not found' });
+    }
+    res.status(500).json({ error: 'Failed to delete business idea' });
   }
-  
-  ideas.splice(index, 1);
-  res.json({});
 });
 
 // Start the server
