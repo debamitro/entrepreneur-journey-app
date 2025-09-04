@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Clerk
 
 struct BusinessIdea: Identifiable, Codable {
     var id: UUID
@@ -79,22 +80,27 @@ class IdeaStore: ObservableObject {
     private let key = "savedIdeas"
     
     init() {
-        loadIdeas()
+        loadIdeas(isUserLoggedIn: false) // Don't fetch from API on init, will be called from onAppear with proper auth state
     }
     
-    func loadIdeas() {
+    func loadIdeas(isUserLoggedIn: Bool = true) {
         // First load from local storage as a fallback
         if let data = UserDefaults.standard.data(forKey: key),
            let decoded = try? JSONDecoder().decode([BusinessIdea].self, from: data) {
             ideas = decoded
         }
         
-        // Then try to fetch from API
-        Task { await fetchIdeasFromAPI() }
+        // Then try to fetch from API only if user is logged in
+        Task { await fetchIdeasFromAPI(isUserLoggedIn: isUserLoggedIn) }
     }
     
     @MainActor
-    func fetchIdeasFromAPI() async {
+    func fetchIdeasFromAPI(isUserLoggedIn: Bool = true) async {
+        guard isUserLoggedIn else {
+            print("User not logged in - skipping API fetch")
+            return
+        }
+        
         isLoading = true
         errorMessage = nil
         
@@ -119,23 +125,27 @@ class IdeaStore: ObservableObject {
     }
     
     @MainActor
-    func addIdea(_ idea: BusinessIdea) {
+    func addIdea(_ idea: BusinessIdea, isUserLoggedIn: Bool = true) {
         // Optimistically update the UI
         ideas.insert(idea, at: 0)
         saveIdeasLocally()
         
-        // Save to API
-        Task {
-            do {
-                let savedIdea = try await APIService.shared.saveIdea(idea)
-                print("Idea saved successfully to API with ID: \(savedIdea.id)")
-            } catch let error as APIError {
-                errorMessage = "Failed to save idea: \(error.message)"
-                print("Error saving idea: \(error.message)")
-            } catch {
-                errorMessage = "Failed to save idea: \(error.localizedDescription)"
-                print("Error saving idea: \(error.localizedDescription)")
+        // Save to API only if user is logged in
+        if isUserLoggedIn {
+            Task {
+                do {
+                    let savedIdea = try await APIService.shared.saveIdea(idea)
+                    print("Idea saved successfully to API with ID: \(savedIdea.id)")
+                } catch let error as APIError {
+                    errorMessage = "Failed to save idea: \(error.message)"
+                    print("Error saving idea: \(error.message)")
+                } catch {
+                    errorMessage = "Failed to save idea: \(error.localizedDescription)"
+                    print("Error saving idea: \(error.localizedDescription)")
+                }
             }
+        } else {
+            print("User not logged in - saved locally only")
         }
     }
 }
@@ -212,6 +222,7 @@ struct WannapreneurView: View {
     @StateObject private var ideaStore = IdeaStore()
     @State private var showingForm = false
     @State private var isRefreshing = false
+    @Environment(Clerk.self) private var clerk
     
     var body: some View {
         VStack(spacing: 20) {
@@ -247,7 +258,7 @@ struct WannapreneurView: View {
                     Button(action: {
                         isRefreshing = true
                         Task {
-                            await ideaStore.fetchIdeasFromAPI()
+                            await ideaStore.fetchIdeasFromAPI(isUserLoggedIn: clerk.user != nil)
                             isRefreshing = false
                         }
                     }) {
@@ -292,12 +303,12 @@ struct WannapreneurView: View {
         .padding()
         .sheet(isPresented: $showingForm) {
             EntryFormView { newIdea in
-                ideaStore.addIdea(newIdea)
+                ideaStore.addIdea(newIdea, isUserLoggedIn: clerk.user != nil)
             }
         }
         .onAppear {
             Task {
-                await ideaStore.fetchIdeasFromAPI()
+                await ideaStore.fetchIdeasFromAPI(isUserLoggedIn: clerk.user != nil)
             }
         }
     }

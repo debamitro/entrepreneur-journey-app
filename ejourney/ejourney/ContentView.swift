@@ -23,40 +23,39 @@ struct ContentView: View {
                         .foregroundColor(.red)
                         .padding()
                     }
-                    
-                    Text("Welcome!")
-                        .font(.system(size: 32, weight: .bold))
-                        .padding(.top, 20)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                    
-                    Text("Have you already started your entrepreneurial journey?")
-                        .font(.title)
-                        .foregroundColor(.gray)
-                        .padding(.bottom, 20)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                    
-                    NavigationLink(destination: WannapreneurView()) {
-                        Text("Not yet")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
-                            .background(Color.brown)
-                            .cornerRadius(10)
-                    }
-                    
-                    NavigationLink(destination: EntrepreneurView()) {
-                        Text("Yes I have")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
-                            .background(Color.green)
-                            .cornerRadius(10)
-                    }
-                } else {
-                    SignInView()
                 }
+                
+                Text("Welcome!")
+                    .font(.system(size: 32, weight: .bold))
+                    .padding(.top, 20)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                
+                Text("Have you already started your entrepreneurial journey?")
+                    .font(.title)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 20)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                
+                NavigationLink(destination: WannapreneurView()) {
+                    Text("Not yet")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 200, height: 50)
+                        .background(Color.brown)
+                        .cornerRadius(10)
+                }
+                
+                NavigationLink(destination: EntrepreneurView()) {
+                    Text("Yes I have")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 200, height: 50)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                }
+                
             }
         }
     }
