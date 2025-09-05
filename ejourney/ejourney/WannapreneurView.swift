@@ -148,6 +148,33 @@ class IdeaStore: ObservableObject {
             print("User not logged in - saved locally only")
         }
     }
+    
+    @MainActor
+    func updateIdea(_ updatedIdea: BusinessIdea, isUserLoggedIn: Bool = true) {
+        // Find and update the idea in the local array
+        if let index = ideas.firstIndex(where: { $0.id == updatedIdea.id }) {
+            ideas[index] = updatedIdea
+            saveIdeasLocally()
+            
+            // Update on API only if user is logged in
+            if isUserLoggedIn {
+                Task {
+                    do {
+                        let savedIdea = try await APIService.shared.saveIdea(updatedIdea)
+                        print("Idea updated successfully on API with ID: \(savedIdea.id)")
+                    } catch let error as APIError {
+                        errorMessage = "Failed to update idea: \(error.message)"
+                        print("Error updating idea: \(error.message)")
+                    } catch {
+                        errorMessage = "Failed to update idea: \(error.localizedDescription)"
+                        print("Error updating idea: \(error.localizedDescription)")
+                    }
+                }
+            } else {
+                print("User not logged in - updated locally only")
+            }
+        }
+    }
 }
 
 struct EntryFormView: View {
@@ -191,8 +218,62 @@ struct EntryFormView: View {
     }
 }
 
+struct EditIdeaFormView: View {
+    @Environment(\.dismiss) private var dismiss
+    var idea: BusinessIdea
+    var onSave: (BusinessIdea) -> Void
+    
+    @State private var businessDescription: String
+    @State private var effort: String
+    @State private var targetMarket: String
+    @State private var reward: String
+    
+    init(idea: BusinessIdea, onSave: @escaping (BusinessIdea) -> Void) {
+        self.idea = idea
+        self.onSave = onSave
+        _businessDescription = State(initialValue: idea.description)
+        _effort = State(initialValue: idea.effort)
+        _targetMarket = State(initialValue: idea.targetMarket)
+        _reward = State(initialValue: idea.reward)
+    }
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Business Idea")) {
+                    TextField("Description", text: $businessDescription)
+                    TextField("Who is it for", text: $targetMarket)
+                    TextField("Effort", text: $effort)
+                    TextField("Reward ($)", text: $reward)
+                        .keyboardType(.decimalPad)
+                }
+            }
+            .navigationTitle("Edit Idea")
+            .navigationBarItems(
+                leading: Button("Cancel") {
+                    dismiss()
+                },
+                trailing: Button("Save") {
+                    let updatedIdea = BusinessIdea(
+                        id: idea.id,
+                        description: businessDescription,
+                        targetMarket: targetMarket,
+                        effort: effort,
+                        reward: reward,
+                        date: idea.date
+                    )
+                    onSave(updatedIdea)
+                    dismiss()
+                }
+                .disabled(businessDescription.isEmpty)
+            )
+        }
+    }
+}
+
 struct IdeaCard: View {
     let idea: BusinessIdea
+    let onTap: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -215,44 +296,34 @@ struct IdeaCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.gray.opacity(0.1))
         .cornerRadius(10)
+        .onTapGesture {
+            onTap()
+        }
     }
 }
 
 struct WannapreneurView: View {
     @StateObject private var ideaStore = IdeaStore()
     @State private var showingForm = false
+    @State private var showingEditForm = false
+    @State private var selectedIdea: BusinessIdea?
     @State private var isRefreshing = false
     @Environment(Clerk.self) private var clerk
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             Text("Wannapreneur")
-                .font(.largeTitle)
+                .font(.system(size: 32, weight: .bold))
                 .padding(.bottom, 10)
-            
-            Button(action: {
-                showingForm = true
-            }) {
-                HStack {
-                    Image(systemName: "square.and.pencil")
-                    Text("Jot down an idea")
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(width: 200, height: 50)
-                .background(Color.blue)
-                .cornerRadius(10)
-            }
-            
+            Text("You need to keep noting down your ideas!")
+                .font(.title3)
+                .foregroundColor(.gray)
             if ideaStore.isLoading && ideaStore.ideas.isEmpty {
                 Spacer()
                 ProgressView("Loading ideas...")
                 Spacer()
             } else if !ideaStore.ideas.isEmpty {
                 HStack {
-                    Text("Your Ideas")
-                        .font(.headline)
-                    
                     Spacer()
                     
                     Button(action: {
@@ -269,15 +340,19 @@ struct WannapreneurView: View {
                     .disabled(ideaStore.isLoading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top)
+                .padding(.top, 20)
                 
                 ScrollView {
                     LazyVStack(spacing: 15) {
                         ForEach(ideaStore.ideas) { idea in
-                            IdeaCard(idea: idea)
+                            IdeaCard(idea: idea) {
+                                selectedIdea = idea
+                                showingEditForm = true
+                            }
                         }
                     }
                 }
+                .padding(.bottom, 20)
                 
                 if ideaStore.isLoading {
                     ProgressView()
@@ -299,11 +374,34 @@ struct WannapreneurView: View {
                     .cornerRadius(8)
                     .padding(.horizontal)
             }
+            
+            HStack {
+                Spacer()
+                Button(action: {
+                    showingForm = true
+                }) {
+                    Image(systemName: "plus.app.fill")
+                        .font(.system(size: 40, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 80, height: 80)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+                Spacer()
+            }
+            .padding(.bottom, 20)
         }
         .padding()
         .sheet(isPresented: $showingForm) {
             EntryFormView { newIdea in
                 ideaStore.addIdea(newIdea, isUserLoggedIn: clerk.user != nil)
+            }
+        }
+        .sheet(isPresented: $showingEditForm) {
+            if let selectedIdea = selectedIdea {
+                EditIdeaFormView(idea: selectedIdea) { updatedIdea in
+                    ideaStore.updateIdea(updatedIdea, isUserLoggedIn: clerk.user != nil)
+                }
             }
         }
         .onAppear {

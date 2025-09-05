@@ -41,16 +41,16 @@ struct ContentView: View {
                 NavigationLink(destination: WannapreneurView()) {
                     Text("Not yet")
                         .font(.title2)
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                         .frame(width: 200, height: 50)
-                        .background(Color.brown)
+                        .background(Color.yellow)
                         .cornerRadius(10)
                 }
                 
                 NavigationLink(destination: EntrepreneurView()) {
                     Text("Yes I have")
                         .font(.title2)
-                        .foregroundColor(.white)
+                        .foregroundColor(.black)
                         .frame(width: 200, height: 50)
                         .background(Color.green)
                         .cornerRadius(10)

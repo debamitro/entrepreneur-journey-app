@@ -11,7 +11,11 @@ struct EntrepreneurView: View {
     var body: some View {
         VStack {
             Text("Entrepreneur")
-                .font(.largeTitle)
+                .font(.system(size: 32, weight: .bold))
+                .padding(.bottom, 10)
+            Text("Here's your diary")
+                .font(.title3)
+                .foregroundColor(.gray)
             Spacer()
         }
         .padding()
