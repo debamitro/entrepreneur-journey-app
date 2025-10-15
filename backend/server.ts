@@ -2,7 +2,7 @@ import express = require('express');
 import cors = require('cors');
 import bodyParser = require('body-parser');
 import { PrismaClient, Prisma } from '@prisma/client';
-
+import dotenv from 'dotenv';
 type Request = express.Request;
 type Response = express.Response;
 
@@ -15,6 +15,22 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+dotenv.config();
+
+// API Token Authentication Middleware
+const authMiddleware = (req: Request, res: Response, next: Function) => {
+  const token = req.headers['x-api-token'] as string;
+  const expectedToken = process.env.API_TOKEN;
+  
+  if (!token || token !== expectedToken) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing API token' });
+  }
+  
+  next();
+};
+
+// Apply auth middleware to all /v1 routes
+app.use('/v1', authMiddleware);
 
 // Define the BusinessIdea interface (matching Prisma model)
 interface BusinessIdea {
