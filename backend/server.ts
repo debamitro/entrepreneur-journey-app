@@ -34,7 +34,7 @@ app.use('/v1', authMiddleware);
 
 // Define the BusinessIdea interface (matching Prisma model)
 interface BusinessIdea {
-  id: string;
+  id: number;
   description: string;
   targetMarket: string;
   effort: string;
@@ -46,7 +46,7 @@ interface BusinessIdea {
 
 // Define the User interface (matching Prisma model)
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   createdAt: Date;
@@ -56,7 +56,7 @@ interface User {
 
 // Define the DiaryEntry interface (matching Prisma model)
 interface DiaryEntry {
-  id: string;
+  id: number;
   content: string;
   category: 'WANNAPRENEUR' | 'ENTREPRENEUR';
   createdAt: Date;
@@ -214,7 +214,7 @@ app.get('/v1/users/:id', async (req: Request, res: Response) => {
     console.log(`Fetching user with ID: ${req.params.id}`);
     const user = await prisma.user.findUnique({
       where: {
-        id: req.params.id as string
+        id: req.params.id as number
       }
     });
     
@@ -261,7 +261,7 @@ app.put('/v1/users/:id', async (req: Request, res: Response) => {
     
     const updatedUser = await prisma.user.update({
       where: {
-        id: req.params.id as string
+        id: req.params.id as number
       },
       data: {
         name: name,
@@ -288,7 +288,7 @@ app.delete('/v1/users/:id', async (req: Request, res: Response) => {
     
     await prisma.user.delete({
       where: {
-        id: req.params.id as string
+        id: req.params.id as number
       }
     });
     
@@ -328,7 +328,7 @@ app.get('/v1/diary-entries/:id', async (req: Request, res: Response) => {
     console.log(`Fetching diary entry with ID: ${req.params.id}`);
     const entry = await prisma.diaryEntry.findUnique({
       where: {
-        id: req.params.id as string
+        id: req.params.id as number
       }
     });
     
@@ -346,7 +346,7 @@ app.get('/v1/diary-entries/:id', async (req: Request, res: Response) => {
 // Create a new diary entry
 app.post('/v1/diary-entries', async (req: Request, res: Response) => {
   try {
-    const { content, category, userId, ideaId } = req.body;
+    const { content, category, userId } = req.body;
     console.log('Received diary entry:', JSON.stringify(req.body));
     
     const newEntry = await prisma.diaryEntry.create({
@@ -354,7 +354,6 @@ app.post('/v1/diary-entries', async (req: Request, res: Response) => {
         content: content || '',
         category: category,
         userId: userId,
-        ideaId: ideaId
       }
     });
     
