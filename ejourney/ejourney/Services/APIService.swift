@@ -55,6 +55,7 @@ class APIService {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         
+        request.setValue("", forHTTPHeaderField: "X-api-token")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
         // Add authentication if needed
@@ -70,9 +71,20 @@ class APIService {
             if !(200...299).contains(httpResponse.statusCode) {
                 throw APIError.serverError(httpResponse.statusCode)
             }
-            
+
             do {
-                return try JSONDecoder().decode(T.self, from: data)
+                let decoder = JSONDecoder()
+                let formatter = ISO8601DateFormatter()
+                formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                decoder.dateDecodingStrategy = .custom { decoder in
+                    let container = try decoder.singleValueContainer()
+                    let dateString = try container.decode(String.self)
+                    if let date = formatter.date(from: dateString) {
+                        return date
+                    }
+                    throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Invalid date format"))
+                }
+                return try decoder.decode(T.self, from: data)
             } catch {
                 throw APIError.decodingError(error)
             }
@@ -113,6 +125,39 @@ class APIService {
     
     func deleteIdea(id: UUID) async throws -> Bool {
         let _: EmptyResponse = try await request(endpoint: "ideas/\(id)", method: "DELETE")
+        return true
+    }
+    
+    // MARK: - Diary Entries API
+    
+    func saveDiaryEntry(_ entry: DiaryEntry) async throws -> DiaryEntry {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        
+        guard let data = try? encoder.encode(entry) else {
+            throw APIError.unknown
+        }
+        
+        return try await request(endpoint: "diary-entries", method: "POST", body: data)
+    }
+    
+    func fetchDiaryEntries() async throws -> [DiaryEntry] {
+        return try await request(endpoint: "diary-entries")
+    }
+    
+    func updateDiaryEntry(_ entry: DiaryEntry) async throws -> DiaryEntry {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        
+        guard let data = try? encoder.encode(entry) else {
+            throw APIError.unknown
+        }
+        
+        return try await request(endpoint: "diary-entries/\(entry.id)", method: "PUT", body: data)
+    }
+    
+    func deleteDiaryEntry(id: UUID) async throws -> Bool {
+        let _: EmptyResponse = try await request(endpoint: "diary-entries/\(id)", method: "DELETE")
         return true
     }
 }
