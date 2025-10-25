@@ -1,5 +1,5 @@
 //
-//  WannapreneurView.swift
+//  BusinessIdeasView.swift
 //  ejourney
 //
 //  Created by Debamitro Chakraborti on 6/11/25.
@@ -31,11 +31,6 @@ class IdeaStore: ObservableObject {
     
     @MainActor
     func fetchIdeasFromAPI(isUserLoggedIn: Bool = true) async {
-        guard isUserLoggedIn else {
-            print("User not logged in - skipping API fetch")
-            return
-        }
-        
         isLoading = true
         errorMessage = nil
         
@@ -226,7 +221,7 @@ struct IdeaCard: View {
     }
 }
 
-struct WannapreneurView: View {
+struct BusinessIdeasView: View {
     @StateObject private var ideaStore = IdeaStore()
     @State private var showingForm = false
     @State private var showingEditForm = false
@@ -236,7 +231,7 @@ struct WannapreneurView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Text("Wannapreneur")
+            Text("Ideas")
                 .font(.system(size: 32, weight: .bold))
                 .padding(.bottom, 10)
             Text("You need to keep noting down your ideas!")

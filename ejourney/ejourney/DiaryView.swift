@@ -1,5 +1,5 @@
 //
-//  EntreprenuerView.swift
+//  DiaryView.swift
 //  ejourney
 //
 //  Created by Debamitro Chakraborti on 6/11/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EntrepreneurView: View {
+struct DiaryView: View {
     @State private var showingDiaryEntry = false
     @State private var diaryEntries: [DiaryEntry] = []
     @State private var isLoading = false
@@ -16,15 +16,9 @@ struct EntrepreneurView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                VStack(spacing: 20) {
-                    Text("Entrepreneur")
-                        .font(.system(size: 32, weight: .bold))
-                        .padding(.bottom, 10)
-                    Text("Diary")
-                        .font(.title3)
-                        .foregroundColor(.gray)
-                }
-                .padding()
+                Text("Diary")
+                    .font(.system(size: 32, weight: .bold))
+                    .padding(.bottom, 10)
                 
                 if isLoading {
                     Spacer()

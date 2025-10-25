@@ -10,6 +10,7 @@ import Clerk
 
 struct ContentView: View {
     @Environment(Clerk.self) private var clerk
+    @Environment(UserSettings.self) private var userSettings
     
     var body: some View {
         NavigationView {
@@ -25,21 +26,20 @@ struct ContentView: View {
                     }
                 }
                 
+                NavigationLink(destination: SettingsView()) {
+                    Image(systemName: "gear")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                }
+
                 Text("Welcome!")
                     .font(.system(size: 32, weight: .bold))
                     .padding(.top, 20)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
                 
-                Text("Have you already started your entrepreneurial journey?")
-                    .font(.title)
-                    .foregroundColor(.gray)
-                    .padding(.bottom, 20)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                
-                NavigationLink(destination: WannapreneurView()) {
-                    Text("Not yet")
+                NavigationLink(destination: BusinessIdeasView()) {
+                    Text("Ideas")
                         .font(.title2)
                         .foregroundColor(.black)
                         .frame(width: 200, height: 50)
@@ -47,8 +47,8 @@ struct ContentView: View {
                         .cornerRadius(10)
                 }
                 
-                NavigationLink(destination: EntrepreneurView()) {
-                    Text("Yes I have")
+                NavigationLink(destination: DiaryView()) {
+                    Text("Diary")
                         .font(.title2)
                         .foregroundColor(.black)
                         .frame(width: 200, height: 50)
@@ -57,6 +57,8 @@ struct ContentView: View {
                 }
                 
             }
+            .navigationTitle("Home")
+            .navigationBarHidden(true)
         }
     }
 }

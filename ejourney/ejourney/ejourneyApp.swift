@@ -11,6 +11,7 @@ import Clerk
 @main
 struct ejourneyApp: App {
     @State private var clerk = Clerk.shared
+    @State private var userSettings = UserSettings.shared
     
     var body: some Scene {
         WindowGroup {
@@ -22,6 +23,7 @@ struct ejourneyApp: App {
                 }
             }
             .environment(clerk)
+            .environment(userSettings)
             .task {
                 print("[Debug] Configuring Clerk...")
                 clerk.configure(publishableKey: Bundle.main.object(forInfoDictionaryKey: "CLERK_PUBLISHABLE_KEY") as! String)
