@@ -95,7 +95,7 @@ app.get('/v1/ideas/:id', async (req: Request, res: Response) => {
     console.log(`Fetching idea with ID: ${req.params.id}`);
     const idea = await prisma.businessIdea.findUnique({
       where: {
-        id: req.params.id as string
+        id: parseInt(req.params.id as string)
       }
     });
     
@@ -145,7 +145,7 @@ app.put('/v1/ideas/:id', async (req: Request, res: Response) => {
     
     const updatedIdea = await prisma.businessIdea.update({
       where: {
-        id: req.params.id as string
+        id: parseInt(req.params.id as string)
       },
       data: {
         description: description,
@@ -174,7 +174,7 @@ app.delete('/v1/ideas/:id', async (req: Request, res: Response) => {
     
     await prisma.businessIdea.delete({
       where: {
-        id: req.params.id as string
+        id: parseInt(req.params.id as string)
       }
     });
     
@@ -214,7 +214,7 @@ app.get('/v1/users/:id', async (req: Request, res: Response) => {
     console.log(`Fetching user with ID: ${req.params.id}`);
     const user = await prisma.user.findUnique({
       where: {
-        id: req.params.id as number
+        id: parseInt(req.params.id as string)
       }
     });
     
@@ -261,7 +261,7 @@ app.put('/v1/users/:id', async (req: Request, res: Response) => {
     
     const updatedUser = await prisma.user.update({
       where: {
-        id: req.params.id as number
+        id: parseInt(req.params.id as string)
       },
       data: {
         name: name,
@@ -288,7 +288,7 @@ app.delete('/v1/users/:id', async (req: Request, res: Response) => {
     
     await prisma.user.delete({
       where: {
-        id: req.params.id as number
+        id: parseInt(req.params.id as string)
       }
     });
     
@@ -328,7 +328,7 @@ app.get('/v1/diary-entries/:id', async (req: Request, res: Response) => {
     console.log(`Fetching diary entry with ID: ${req.params.id}`);
     const entry = await prisma.diaryEntry.findUnique({
       where: {
-        id: req.params.id as number
+        id: parseInt(req.params.id as string)
       }
     });
     
@@ -375,7 +375,7 @@ app.put('/v1/diary-entries/:id', async (req: Request, res: Response) => {
     
     const updatedEntry = await prisma.diaryEntry.update({
       where: {
-        id: req.params.id as string
+        id: parseInt(req.params.id as string)
       },
       data: {
         content: content,
@@ -403,7 +403,7 @@ app.delete('/v1/diary-entries/:id', async (req: Request, res: Response) => {
     
     await prisma.diaryEntry.delete({
       where: {
-        id: req.params.id as string
+        id: parseInt(req.params.id as string)
       }
     });
     
