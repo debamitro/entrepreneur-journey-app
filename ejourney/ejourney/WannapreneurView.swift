@@ -65,22 +65,17 @@ class IdeaStore: ObservableObject {
         ideas.insert(idea, at: 0)
         saveIdeasLocally()
         
-        // Save to API only if user is logged in
-        if isUserLoggedIn {
-            Task {
-                do {
-                    let savedIdea = try await APIService.shared.saveIdea(idea)
-                    print("Idea saved successfully to API with ID: \(savedIdea.id)")
-                } catch let error as APIError {
-                    errorMessage = "Failed to save idea: \(error.message)"
-                    print("Error saving idea: \(error.message)")
-                } catch {
-                    errorMessage = "Failed to save idea: \(error.localizedDescription)"
-                    print("Error saving idea: \(error.localizedDescription)")
-                }
+        Task {
+            do {
+                let savedIdea = try await APIService.shared.saveIdea(idea)
+                print("Idea saved successfully to API with ID: \(savedIdea.id)")
+            } catch let error as APIError {
+                errorMessage = "Failed to save idea: \(error.message)"
+                print("Error saving idea: \(error.message)")
+            } catch {
+                errorMessage = "Failed to save idea: \(error.localizedDescription)"
+                print("Error saving idea: \(error.localizedDescription)")
             }
-        } else {
-            print("User not logged in - saved locally only")
         }
     }
     
@@ -91,22 +86,17 @@ class IdeaStore: ObservableObject {
             ideas[index] = updatedIdea
             saveIdeasLocally()
             
-            // Update on API only if user is logged in
-            if isUserLoggedIn {
-                Task {
-                    do {
-                        let savedIdea = try await APIService.shared.saveIdea(updatedIdea)
-                        print("Idea updated successfully on API with ID: \(savedIdea.id)")
-                    } catch let error as APIError {
-                        errorMessage = "Failed to update idea: \(error.message)"
-                        print("Error updating idea: \(error.message)")
-                    } catch {
-                        errorMessage = "Failed to update idea: \(error.localizedDescription)"
-                        print("Error updating idea: \(error.localizedDescription)")
-                    }
+            Task {
+                do {
+                    let savedIdea = try await APIService.shared.saveIdea(updatedIdea)
+                    print("Idea updated successfully on API with ID: \(savedIdea.id)")
+                } catch let error as APIError {
+                    errorMessage = "Failed to update idea: \(error.message)"
+                    print("Error updating idea: \(error.message)")
+                } catch {
+                    errorMessage = "Failed to update idea: \(error.localizedDescription)"
+                    print("Error updating idea: \(error.localizedDescription)")
                 }
-            } else {
-                print("User not logged in - updated locally only")
             }
         }
     }
@@ -190,7 +180,6 @@ struct EditIdeaFormView: View {
                 },
                 trailing: Button("Save") {
                     let updatedIdea = BusinessIdea(
-                        id: idea.id,
                         description: businessDescription,
                         targetMarket: targetMarket,
                         effort: effort,

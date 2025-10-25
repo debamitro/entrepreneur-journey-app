@@ -8,41 +8,32 @@
 import Foundation
 
 struct BusinessIdea: Identifiable, Codable {
-    var id: UUID
+    var id: Int
     var description: String
     var targetMarket: String
     var effort: String
     var reward: String
     var date: Date
+    var userId: Int
     
-    init(id: UUID = UUID(), description: String, targetMarket: String, effort: String, reward: String, date: Date = Date()) {
-        self.id = id
+    init(description: String, targetMarket: String, effort: String, reward: String, date: Date = Date()) {
+        self.id = 0
         self.description = description
         self.targetMarket = targetMarket
         self.effort = effort
         self.reward = reward
         self.date = date
+        self.userId = 1
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, description, targetMarket, effort, reward, date
+        case id, description, targetMarket, effort, reward, date, userId
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        // Try to decode the id as a UUID string
-        if let idString = try? container.decode(String.self, forKey: .id) {
-            if let uuid = UUID(uuidString: idString) {
-                self.id = uuid
-            } else {
-                self.id = UUID() // Fallback if the string isn't a valid UUID
-            }
-        } else {
-            // If id is not present or not a string, generate a new UUID
-            self.id = UUID()
-        }
-        
+        self.id = try container.decode(Int.self, forKey: .id)
         self.description = try container.decode(String.self, forKey: .description)
         self.targetMarket = try container.decode(String.self, forKey: .targetMarket)
         self.effort = try container.decode(String.self, forKey: .effort)
@@ -57,15 +48,18 @@ struct BusinessIdea: Identifiable, Codable {
         } else {
             self.date = Date()
         }
+        
+        self.userId = try container.decode(Int.self, forKey: .userId)
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id.uuidString, forKey: .id)
+        try container.encode(id, forKey: .id)
         try container.encode(description, forKey: .description)
         try container.encode(targetMarket, forKey: .targetMarket)
         try container.encode(effort, forKey: .effort)
         try container.encode(reward, forKey: .reward)
+        try container.encode(userId, forKey: .userId)
         
         let formatter = ISO8601DateFormatter()
         try container.encode(formatter.string(from: date), forKey: .date)
