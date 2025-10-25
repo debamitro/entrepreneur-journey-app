@@ -26,39 +26,45 @@ struct ContentView: View {
                     }
                 }
                 
-                NavigationLink(destination: SettingsView()) {
-                    Image(systemName: "gear")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                }
-
                 Text("Welcome!")
                     .font(.system(size: 32, weight: .bold))
                     .padding(.top, 20)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
                 
-                NavigationLink(destination: BusinessIdeasView()) {
-                    Text("Ideas")
-                        .font(.title2)
-                        .foregroundColor(.black)
-                        .frame(width: 200, height: 50)
-                        .background(Color.yellow)
-                        .cornerRadius(10)
+                HStack {
+                    NavigationLink(destination: BusinessIdeasView()) {
+                        Text("Ideas")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                            .frame(width: 150, height: 150)
+                            .background(Color.yellow)
+                            .cornerRadius(20)
+                    }
+                    
+                    NavigationLink(destination: DiaryView()) {
+                        Text("Diary")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                            .frame(width: 150, height: 150)
+                            .background(Color.green)
+                            .cornerRadius(20)
+                    }
                 }
-                
-                NavigationLink(destination: DiaryView()) {
-                    Text("Diary")
-                        .font(.title2)
-                        .foregroundColor(.black)
-                        .frame(width: 200, height: 50)
-                        .background(Color.green)
-                        .cornerRadius(10)
-                }
-                
             }
-            .navigationTitle("Home")
-            .navigationBarHidden(true)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: SettingsView()) {
+                        Image(systemName: "gear")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
         }
     }
 }
