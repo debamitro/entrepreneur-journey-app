@@ -8,7 +8,11 @@
 	</array>
 	<key>CFBundleIdentifier</key>
 	<string></string>
-    <key>CLERK_PUBLISHABLE_KEY</key>
-    <string>$(CLERK_PUBLISHABLE_KEY)</string>
+	<key>CLERK_PUBLISHABLE_KEY</key>
+	<string>$(CLERK_PUBLISHABLE_KEY)</string>
+	<key>BACKEND_API_KEY</key>
+	<string>$(BACKEND_API_KEY)</string>
+	<key>BACKEND_URL</key>
+	<string>$(BACKEND_URL)</string>
 </dict>
 </plist>

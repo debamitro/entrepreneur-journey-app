@@ -37,12 +37,16 @@ class APIService {
     static let shared = APIService()
     
     // Local development server URL
-    private let baseURL = "http://localhost:3000/v1"
+    private let baseURL = (Bundle.main.object(forInfoDictionaryKey: "BACKEND_URL") as? String)?.replacingOccurrences(of: "\\/", with: "/")
     
     private init() {}
     
     // Generic request function
     private func request<T: Decodable>(endpoint: String, method: String = "GET", body: Data? = nil) async throws -> T {
+        guard let baseURL = baseURL, !baseURL.isEmpty else {
+            throw APIError.invalidURL
+        }
+        
         guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
             throw APIError.invalidURL
         }
@@ -55,7 +59,7 @@ class APIService {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         
-        request.setValue("", forHTTPHeaderField: "X-api-token")
+        request.setValue(Bundle.main.object(forInfoDictionaryKey: "BACKEND_API_KEY") as? String, forHTTPHeaderField: "X-api-token")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
         // Add authentication if needed
